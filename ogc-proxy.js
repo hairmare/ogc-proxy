@@ -2,11 +2,14 @@
 "use strict";
 
 var program = require('commander');
+var bunyan  = require('bunyan');
 var express = require('express');
+var elogger = require('express-bunyan-logger');
 var proxy   = require('http-proxy');
 var fs      = require('fs');
 
 var running = false;
+var logger  = bunyan.createLogger({name: 'ogc-proxy'});
 
 program.version(require('./package.json').version)
        .usage("<Command> - run an ogc proxy\n\n    Please refer to each commands --help for details now how to run each service.");
@@ -23,6 +26,7 @@ program.command('main')
        .option('--dist-port   <DIST_PORT_80_TCP_PORT>', 'port of the dist server, default: 80', process.env.DIST_PORT_80_TCP_PORT || 80)
        .action(function (options) {
          var app = express();
+         app.use(elogger({name: 'ogc-proxy-main'}));
          var apiProxy = proxy.createProxyServer();
          var guiProxy = proxy.createProxyServer();
          var distProxy = proxy.createProxyServer();
@@ -36,7 +40,7 @@ program.command('main')
            distProxy.web(req, res, { target: 'http://' + options.distHost + ':' + options.distPort });
          });
          var server = app.listen(options.listenPort, function() {
-           console.log('proxy running on http://%s:%s', server.address().address, server.address().port);
+           logger.info({address: server.address().address, port: server.address().port}, 'main ogc-proxy initialized');
          });
          running = true;
        });
@@ -50,16 +54,20 @@ program.command('ssl')
        .option('--key         <PROXY_KEY>',             'ssl key file, default: key.pem', process.env.PROXY_KEY || 'key.pem')
        .option('--cert        <PROXY_CERT>',            'ssl cert file, default: cert.pem', process.env.PROXY_CERT || 'cert.pem')
        .action(function (options) {
-         proxy.createServer({
-           target: {
-             host: options.targetHost,
-             port: options.targetPort
-           },
+         var app = express();
+         app.use(elogger({name: 'ogc-proxy-ssl'}));
+         var proxy = proxy.createServer({
            ssl: {
              key: fs.readFileSync(options.key, 'utf8'),
              cert: fs.readFileSync(options.cert, 'utf8')
            }
-         }).listen(options.listenPort);
+         })
+         app.all('/*', function(req, res) {
+           proxy.web(req, res, { target: 'http://' + options.targetHost + ':' + options.targetPort })
+         });
+         var server = app.listen(options.listenPort, function() {
+           logger.info({address: server.address().address, port: server.address().port}, 'ssl ogc-proxy initialized');
+         });
        });
 
 program.parse(process.argv);
