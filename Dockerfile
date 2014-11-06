@@ -3,17 +3,17 @@ Maintainer Lucas Bickel <hairmare@purplehaze.ch>
 
 # stage app
 
-COPY proxy.js     /usr/local/src/ogc-proxy/proxy.js
+COPY ogc-proxy.js /usr/local/src/ogc-proxy/ogc-proxy.js
 COPY package.json /usr/local/src/ogc-proxy/package.json
 COPY README.md    /usr/local/src/ogc-proxy/README.md
 
 # install app
 
-RUN cd /usr/local/src/ogc-proxy; npm install -g && chmod +x /usr/lib/node_modules/ogc-proxy/proxy.js
+RUN cd /usr/local/src/ogc-proxy; npm install -g && chmod +x /usr/lib/node_modules/ogc-proxy/ogc-proxy.js
 
 # configure runtime
 
-ENTRYPOINT [ "node", "/usr/lib/node_modules/ogc-proxy/proxy.js" ]
-#CMD ['--help']
+ENTRYPOINT [ "node", "/usr/lib/node_modules/ogc-proxy/ogc-proxy.js" ]
+CMD ['--help']
 
-#EXPOSE 80 443
+EXPOSE 80 443

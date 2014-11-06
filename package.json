@@ -2,10 +2,7 @@
   "name": "ogc-proxy",
   "version": "0.0.1",
   "description": "Online GLSA Checker Proxy",
-  "main": "proxy.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "ogc-proxy.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/hairmare/ogc-proxy.git"
