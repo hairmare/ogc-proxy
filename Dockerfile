@@ -3,9 +3,9 @@ Maintainer Lucas Bickel <hairmare@purplehaze.ch>
 
 # stage app
 
-COPY ogc-proxy.js /usr/local/src/ogc-proxy/ogc-proxy.js
 COPY package.json /usr/local/src/ogc-proxy/package.json
 COPY README.md    /usr/local/src/ogc-proxy/README.md
+COPY ogc-proxy.js /usr/local/src/ogc-proxy/ogc-proxy.js
 
 # install app
 

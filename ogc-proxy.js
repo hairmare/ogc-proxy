@@ -26,21 +26,27 @@ program.command('main')
        .option('--dist-port   <DIST_PORT_80_TCP_PORT>', 'port of the dist server, default: 80', process.env.DIST_PORT_80_TCP_PORT || 80)
        .action(function (options) {
          var app = express();
+
          app.use(elogger({name: 'ogc-proxy-main'}));
-         var apiProxy = proxy.createProxyServer();
-         var guiProxy = proxy.createProxyServer();
-         var distProxy = proxy.createProxyServer();
-         app.all("/api/*", function(req, res) {
-           apiProxy.web(req, res, { target: 'http://' + options.apiHost + ':' + options.apiPort });
-         });
-         app.all("/gui/*", function(req, res) {
-           guiProxy.web(req, res, { target: 'http://' + options.guiHost + ':' + options.guiPort });
-         });
-         app.all("/dist/*", function(req, res) {
-           distProxy.web(req, res, { target: 'http://' + options.distHost + ':' + options.distPort });
-         });
+
+         var apiProxy = proxy.createProxyServer({ target: 'http://' + options.apiHost + ':' + options.apiPort });
+         var guiProxy = proxy.createProxyServer({ target: 'http://' + options.guiHost + ':' + options.guiPort });
+         var distProxy = proxy.createProxyServer({ target: 'http://' + options.distHost + ':' + options.distPort });
+
+         app.all("/",            function(req, res) { guiProxy.web(req, res); });
+         app.all("/index.html",  function(req, res) { guiProxy.web(req, res); });
+         app.all("/favicon.ico", function(req, res) { guiProxy.web(req, res); });
+         app.all("/fonts/*",     function(req, res) { guiProxy.web(req, res); });
+
+         app.all("/dist/*",      function(req, res) { distProxy.web(req, res); });
+
+         app.all("/*",           function(req, res) { apiProxy.web(req, res); });
+
          var server = app.listen(options.listenPort, function() {
            logger.info({address: server.address().address, port: server.address().port}, 'main ogc-proxy initialized');
+           logger.info({address: options.distHost, port: options.distPort}, 'dist host targeted');
+           logger.info({address: options.apiHost, port: options.apiPort}, 'api host targeted');
+           logger.info({address: options.guiHost, port: options.guiPort}, 'gui host targeted');
          });
          running = true;
        });
