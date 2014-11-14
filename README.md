@@ -1,5 +1,7 @@
 # Online GLSA Checker Proxies
 
+[![Docker badge](http://img.shields.io/badge/Docker-hairmare%2Fogc--proxy-008bb8.svg)](https://registry.hub.docker.com/u/hairmare/ogc-proxy/) [![HuBoard badge](http://img.shields.io/badge/Hu-Board-7965cc.svg)](https://huboard.com/hairmare/ogc)
+
 Various proxies for ogc. Built for [docker](https://docker.io).
 
 ## Install
